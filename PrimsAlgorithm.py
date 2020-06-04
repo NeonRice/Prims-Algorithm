@@ -7,26 +7,28 @@ def minimum_spanning_tree(Graph, start_index=-1):
     edge_number, vertice_count = 0, len(Graph)
     selected = [False] * vertice_count
 
-    if start_index < 0: # If not given choose at random..
+    if start_index < 0:  # If not given choose at random..
         selected[np.random.randint((vertice_count - 1))] = True
     else:
         selected[start_index] = True
 
     while edge_number < vertice_count - 1:  # Edge count cannot exceed vertice count
         minimum = Decimal("Infinity")
-        minPair = {}
-        minV1 = 0
+        minEdge = {}
         for V1 in range(vertice_count):
             if selected[V1]:
                 for V2 in range(vertice_count):
                     if ((not selected[V2]) and Graph[V1][V2]):
                         if minimum > Graph[V1][V2]:
                             minimum = Graph[V1][V2]
-                            minPair = {V1: (V2, minimum)}
-                            minV1 = V1
+                            minEdge = {
+                                "V1": V1,
+                                "V2": V2,
+                                "W": minimum
+                            }
 
-        selected[minPair[minV1][0]] = True
-        minimum_spanning_tree.append(minPair)
+        selected[minEdge["V2"]] = True
+        minimum_spanning_tree.append(minEdge)
         edge_number += 1
 
     return minimum_spanning_tree
@@ -36,9 +38,19 @@ def ParseGraph(filename):
     GraphMatrix = []
     with open(filename, 'r') as file:
         for line in file.readlines():
-            GraphMatrix.append(list(map(int, line)))  # Casting str to int....
+            # Casting str to int....
+            GraphMatrix.append(list(map(int, line.split())))
 
     return GraphMatrix
+
+
+def Output(filename, result):
+    with open(filename, 'w') as file:
+        totalWeight = 0
+        for edge in result:
+            file.write(str(edge["V1"]) + " - " + str(edge["V2"]) + "\t")
+            totalWeight += edge["W"]
+        file.write("\nMinimum Spanning Tree Weight: " + str(totalWeight))
 
 
 # Example Graph-Matrix
@@ -49,5 +61,6 @@ def ParseGraph(filename):
      [0, 42, 66, 31, 0]] """
 
 G = ParseGraph("input.txt")
-result = minimum_spanning_tree(G)
+result = minimum_spanning_tree(G, 1)
 print(result)
+Output("output.txt", result)
